@@ -1,0 +1,27 @@
+ion-header {
+    ion-toolbar {
+      --background: #3880ff; /* Color de fondo del encabezado */
+      --color: #ffffff; /* Color del texto del encabezado */
+    }
+  }
+  
+  ion-content {
+    ion-grid {
+      padding: 20px; /* Espaciado interno del contenido */
+  
+      ion-item {
+        --ion-text-color: #000000; /* Color del texto de los elementos */
+  
+        ion-label {
+          font-weight: bold; /* Texto en negrita para las etiquetas de los campos de entrada */
+        }
+      }
+  
+      ion-button {
+        margin-top: 20px; /* Espaciado superior del botón de registro */
+        --background: #3880ff; /* Color de fondo del botón */
+        --color: #ffffff; /* Color del texto del botón */
+      }
+    }
+  }
+  
