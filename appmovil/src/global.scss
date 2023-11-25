@@ -55,14 +55,14 @@ h1{
   ion-item {
     --color: var(--ion-color-light-contrast);
     --background: var(--ion-color-light);
-    
+
     ion-label {
       color: inherit;
     }
-    
+
     ion-input {
       color: inherit;
-      
+
       &[type="email"] {
         --color: primary; // Color del texto del input de correo
       }
@@ -70,13 +70,13 @@ h1{
 
     ion-icon {
         color: black; // Color del icono
-        
+
         &[name="email"] {
           color: black; // Color del icono de correo
         }
       }
   }
-  
+
 
   .validators{
     font-size: 14px;
@@ -93,4 +93,17 @@ h1{
     display: flex;
     justify-content: center;
     align-items: center;
+  }
+
+  .add-update-modal{
+    --height: 95%;
+    --border-radius: 20px;
+  }
+
+  @media screen and (max-width: 768px){
+
+    .add-update-modal{
+      --height: 95%;
+      --border-radius: 0;
+    }
   }

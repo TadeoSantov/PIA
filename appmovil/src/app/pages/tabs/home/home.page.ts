@@ -1,5 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { Task } from 'src/app/models/task-model';
+import {FirebaseService} from "../../../services/firebase.service";
+import {UtilsService} from "../../../services/utils.service";
+import {AddUpdateTaskComponent} from "../../../shared/components/add-update-task/add-update-task.component";
+import {User} from "../../../models/user.model";
 
 
 
@@ -10,43 +14,102 @@ import { Task } from 'src/app/models/task-model';
 })
 export class HomePage implements OnInit {
 
-  tasks: Task[] = [
-    {
-      id: '1',
-      title: 'Auntenticacion de google',
-      description: 'Crear funcion que permita autenticar',
-      items: [
-        {name: 'Actividad 1', completed: true},
-        {name: 'Actividad 2', completed: false},
-        {name: 'Actividad 3', completed: false},
-      ]
-    },
-    {
-      id: '2',
-      title: 'Auntenticacion de google',
-      description: 'Crear funcion que permita autenticar',
-      items: [
-        {name: 'Actividad 1', completed: true},
-        {name: 'Actividad 2', completed: false},
-        {name: 'Actividad 3', completed: false},
-      ]
-    },
-    {
-      id: '3',
-      title: 'Auntenticacion de google',
-      description: 'Crear funcion que permita autenticar',
-      items: [
-        {name: 'Actividad 1', completed: true},
-        {name: 'Actividad 2', completed: false},
-        {name: 'Actividad 3', completed: false},
-      ]
-    },
-  ]
+  tasks: Task[] = []
+  user = {} as User;
 
-
-  constructor() { }
+  constructor(
+    private firebaseSvc: FirebaseService,
+    private utilsSvc: UtilsService
+  ) { }
 
   ngOnInit() {
   }
 
+  ionViewWillEnter(){
+    this.getTasks()
+    this.getUser()
+  }
+
+
+  getUser() {
+    return this.user = this.utilsSvc.getElementFromLocalStorage('user');
+  }
+  getPercentage(task: Task){
+    return this.utilsSvc.getPercentage(task)
+  }
+
+
+  async addOrUpdateTask(task?: Task){
+    let res = await this.utilsSvc.presentModal({
+      component: AddUpdateTaskComponent,
+      cssClass: '.add-update-modal'
+    })
+
+    if(res && res.success){
+      this.getTasks();
+    }
+  }
+
+  getTasks(){
+    let user: User = this.utilsSvc.getElementFromLocalStorage('user');
+    let path = `users/${user.uid}`;
+
+
+   let sub =  this.firebaseSvc.getSubcollection(path, 'tasks').subscribe({
+      next: (res: Task[]) =>{
+        console.log(res);
+        this.tasks = res;
+        sub.unsubscribe();
+      }
+    })
+  }
+
+  confirmDeleteTask(task: Task){
+    this.utilsSvc.presentAlert({
+      header: 'Eliminar tarea',
+      message: '¿Quieres eliminar la tarea?',
+      buttons: [
+        {
+          text: 'Cancelar',
+          role: 'cancel',
+
+        }, {
+          text: 'Si, eliminar',
+          handler: () => {
+            this.deleteTask(task)
+          }
+        }
+      ]
+    })
+
+  }
+
+  deleteTask(task: Task){
+    let path = `users/${this.user.uid}/tasks/${task.id}`;
+
+    this.utilsSvc.presentLoading();
+
+    this.firebaseSvc.deleteDocument(path).then(res =>{
+
+
+      this.utilsSvc.presentToast({
+        message: 'Tarea eliminada exitosamente',
+        color: 'success',
+        icon: 'checkmark-circle-outline',
+        duration: 1500
+      })
+
+      this.getTasks()
+      this.utilsSvc.dismissLoading()
+    }, error =>{
+      this.utilsSvc.presentToast({
+        message: 'Error',
+        color: 'warning',
+        icon: 'alert-circle-outline',
+        duration: 5000
+      })
+
+      this.utilsSvc.dismissLoading()
+    })
+  }
 }
